@@ -10,4 +10,4 @@ async function postGitHubComment(repo, commitSha, comment) {
     });
 }
 
-module.exports = postGitHubComment;
+exports.postGitHubComment = postGitHubComment;
