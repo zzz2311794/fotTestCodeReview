@@ -2,7 +2,6 @@ const axios = require('axios');
 const { OPENAI_API_KEY } = require('./env.js');  // 请确保这个是安全的
 
 //const code = "console.log(`server is running on http://localhost:${APP_PORT}`)"
-
 async function requestOpenAIApi(code) {
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
         model: "gpt-3.5-turbo",
@@ -18,4 +17,4 @@ async function requestOpenAIApi(code) {
     });
     return response.data.choices[0].message.content;
 }
-module.exports = requestOpenAIApi
+exports.requestOpenAIApi = requestOpenAIApi
