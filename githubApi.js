@@ -1,4 +1,4 @@
-const { GITHUB_TOKEN } = require('./.env');
+const { GITHUB_TOKEN } = require('./env.js');
 
 async function postGitHubComment(repo, commitSha, comment) {
     await axios.post(`https://api.github.com/repos/${repo}/commits/${commitSha}/comments`, {

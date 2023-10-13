@@ -4,7 +4,7 @@ const { verifyGitHubSignature } = require('./secret');
 const { postGitHubComment } = require('./githubApi');
 const { requestOpenAIApi } = require('./gptApi');
 const { getCommitDiff } = require('./getCommitDiff.js');  // 确保你在合适的文件里定义了这个函数
-const { WEBHOOK_SECRET } = require('./.env');
+const { WEBHOOK_SECRET } = require('./env.js');
 
 const app = express();
 

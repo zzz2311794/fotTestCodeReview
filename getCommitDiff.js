@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { GITHUB_TOKEN } = require('./.env');
+const { GITHUB_TOKEN } = require('./env.js');
 
 async function getCommitDiff(repoFullName, commitSha) {
     const response = await axios.get(`https://api.github.com/repos/${repoFullName}/commits/${commitSha}`, {

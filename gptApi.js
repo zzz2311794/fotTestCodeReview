@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { OPENAI_API_KEY } = require('./.env');  // 请确保这个是安全的
+const { OPENAI_API_KEY } = require('./env.js');  // 请确保这个是安全的
 
 //const code = "console.log(`server is running on http://localhost:${APP_PORT}`)"
 
