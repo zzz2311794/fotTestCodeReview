@@ -20,3 +20,5 @@ async function getCommitDiff(repoFullName, commitSha) {
 
     return diffString;
 }
+
+exports.getCommitDiff = getCommitDiff;
