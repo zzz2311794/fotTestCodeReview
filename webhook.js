@@ -14,23 +14,20 @@ app.post('/webhook', async (req, res) => {
     if (!verifyGitHubSignature(req, WEBHOOK_SECRET)) {
         return res.status(403).send('Invalid signature');
     }
+
+
     const commits = req.body.commits;
     const repositoryFullName = req.body.repository.full_name;  // 获取仓库的完整名称
 
-    for (let commit of commits) {
+    // 以防一个push包含多个commit，这里我们只处理第一个commit
+    const commitSha = commits[0].sha;
+    // 获取commit的diff
+    const diff = await getCommitDiff(repositoryFullName, commitSha);
 
-        const commitSha = commit.sha;
-        console.log("commitSha:", commitSha)
-
-        // 获取commit的diff
-        const diff = await getCommitDiff(repositoryFullName, commitSha);
-        console.log("diff:", diff)
-
-        // 将diff发送给ChatGPT进行评审
-        const review = await requestOpenAIApi(diff);
-        // 将评审结果作为评论发送到GitHub的commit下面
-        await postGitHubComment(repositoryFullName, commitSha, review);
-    }
+    // 将diff发送给ChatGPT进行评审
+    const review = await requestOpenAIApi(diff);
+    // 将评审结果作为评论发送到GitHub的commit下面
+    await postGitHubComment(repositoryFullName, commitSha, review);
     res.sendStatus(200);
 });
 
