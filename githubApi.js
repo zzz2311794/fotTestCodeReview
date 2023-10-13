@@ -1,7 +1,7 @@
-const GITHUB_TOKEN = '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';  // 请确保这个是安全的
+const { GITHUB_TOKEN } = require('./.env');
 
-async function postGitHubComment(repo, prNumber, comment) {
-    await axios.post(`https://api.github.com/repos/${repo}/issues/${prNumber}/comments`, {
+async function postGitHubComment(repo, commitSha, comment) {
+    await axios.post(`https://api.github.com/repos/${repo}/commits/${commitSha}/comments`, {
         body: comment
     }, {
         headers: {
@@ -10,4 +10,4 @@ async function postGitHubComment(repo, prNumber, comment) {
     });
 }
 
-module.exports = postGitHubComment
+module.exports = postGitHubComment;

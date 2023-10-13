@@ -1,6 +1,5 @@
 const axios = require('axios');
-
-const OPENAI_API_KEY = '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';  // 请确保这个是安全的
+const { OPENAI_API_KEY } = require('./.env');  // 请确保这个是安全的
 
 //const code = "console.log(`server is running on http://localhost:${APP_PORT}`)"
 
@@ -9,7 +8,7 @@ async function requestOpenAIApi(code) {
         model: "gpt-3.5-turbo",
         messages: [
             { "role": "system", "content": "As a senior code review analyst, you need to help me review the code." },
-            { "role": "user", "content": `Review the following code: \n\n${code}\n\nReview:` }
+            { "role": "user", "content": `Review the following commit and its diff:: \n\n${code}\n\nReview:` }
         ],
         max_tokens: 150
     }, {
