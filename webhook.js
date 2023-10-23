@@ -1,9 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { verifyGitHubSignature } = require('./secret');
-const { postGitHubComment } = require('./githubApi');
-const { requestOpenAIApi } = require('./gptApi');
-const { getCommitDiff } = require('./getCommitDiff.js');  // 确保你在合适的文件里定义了这个函数
+const { checkWebhookSecret } = require('./content/checkWebhookSecret');
+const { postGitComment } = require('./content/postGitComment');
+const { getGitCommitDiff } = require('./content/getGitCommitDiff.js');
 const { WEBHOOK_SECRET } = require('./env.js');
 
 const app = express();
@@ -11,23 +10,27 @@ const app = express();
 app.use(bodyParser.json());
 
 app.post('/webhook', async (req, res) => {
-    if (!verifyGitHubSignature(req, WEBHOOK_SECRET)) {
-        return res.status(403).send('Invalid signature');
+
+    //Webhook Secret 校验不通过
+    if (!checkWebhookSecret(req, WEBHOOK_SECRET)) {
+        return res.status(403).send('Invalid Webhook Secret');
     }
     console.log("body", JSON.stringify(req.body, null, 2));
+
     const commits = req.body.commits;
     const repositoryFullName = req.body.repository.full_name;  // 获取仓库的完整名称
-    // 以防一个push包含多个commit，这里我们只处理第一个commit
-    const commitSha = commits[0].id;
-    console.log("commitSha:", commitSha)
-    // 获取commit的diff
-    const diff = await getCommitDiff(repositoryFullName, commitSha);
-    console.log("diff:", diff)
-    // 将diff发送给ChatGPT进行评审
-    const review = await requestOpenAIApi(diff);
-    console.log("review:", review)
-    // 将评审结果作为评论发送到GitHub的commit下面
-    await postGitHubComment(repositoryFullName, commitSha, review);
+
+    // push包含多个commit，循环处理
+    for (let commit of commits) {
+        const commitSha = commit.id;
+        // 获取commit的diff
+        const gitCommitDiff = await getGitCommitDiff(repositoryFullName, commitSha);
+        // 将diff发送给ChatGPT进行评审
+        const review = await requestGPT(gitCommitDiff, "请审核被提交代码的，如果存在问题请改写：");
+
+        // 将评审结果作为评论发送到GitHub的commit下面
+        await postGitComment(repositoryFullName, commitSha, review);
+    }
     res.sendStatus(200);
 });
 
