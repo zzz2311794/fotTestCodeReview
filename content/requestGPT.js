@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { GPT_URL } = require('..env.js');
+const { GPT_URL } = require('../env.js');
 
 async function requestGPT(code, tips) {
     const content = {
