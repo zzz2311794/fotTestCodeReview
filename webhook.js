@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const { checkWebhookSecret } = require('./content/checkWebhookSecret');
 const { postGitComment } = require('./content/postGitComment');
 const { getGitCommitDiff } = require('./content/getGitCommitDiff.js');
+const { requestGPT } = require('./content/requestGPT');
 const { WEBHOOK_SECRET } = require('./env.js');
 
 const app = express();
