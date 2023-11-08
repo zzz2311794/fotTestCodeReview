@@ -16,7 +16,7 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS reviews (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       commit_id TEXT NOT NULL,
-      commit TEXT NOT NULL,
+      commit_ctx TEXT NOT NULL,
       diff TEXT NOT NULL,
       review TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -30,8 +30,8 @@ db.serialize(() => {
     });
 });
 
-function insertReview(commitId, commit, diff, review) {
-    db.run('INSERT INTO reviews (commit_id, commit, diff, review) VALUES (?, ?, ?, ?)', [commitId, commit, diff, review], (err) => {
+function insertReview(commitId, commit_ctx, diff, review) {
+    db.run('INSERT INTO reviews (commit_id, commit_ctx, diff, review) VALUES (?, ?, ?, ?)', [commitId, commit_ctx, diff, review], (err) => {
         if (err) {
             console.error('Error inserting data', err);
         } else {
