@@ -15,11 +15,11 @@ db.serialize(() => {
     db.run(`
     CREATE TABLE IF NOT EXISTS reviews (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      commit_id TEXT NOT NULL,
-      commit_ctx TEXT NOT NULL,
-      diff TEXT NOT NULL,
-      diff_files TEXT NOT NULL,
-      review TEXT NOT NULL,
+      commit_id TEXT,
+      commit_ctx TEXT,
+      diff TEXT,
+      diff_files TEXT,  
+      review TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {

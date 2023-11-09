@@ -29,12 +29,13 @@ app.post('/webhook', async (req, res) => {
         console.log('getGitCommitDiff....');
         const { commitDiff, diffFiles } = await getGitCommitDiff(repositoryFullName, commitSha);
         // 将diff发送给ChatGPT进行评审
-        console.log('reviewing....');
         const review = await requestGPT(commitDiff, "你作为代码审查师，请指出这次代码提交中代码存在的问题,并给出正确的代码");
+        console.log('review:', review);
         // 将评审结果作为评论发送到GitHub的commit下面
         console.log('postGitComment....');
         await postGitComment(repositoryFullName, commitSha, review);
         // 同时将审核结论写入Redis
+        console.log("info:", { commit, commitDiff, diffFiles, review })
         console.log('saveToRedis....');
         await saveToRedis(commitSha, { commit, commitDiff, diffFiles, review });
         //审核放入 sqlite
