@@ -26,13 +26,13 @@ db.serialize(() => {
         if (err) {
             console.error('Error creating table', err);
         } else {
-            console.log('Table created');
+            console.log('Table created(reviews)');
         }
     });
 });
 
 function insertReview(commitId, commit_ctx, diff, diffFiles, review) {
-    db.run('INSERT INTO reviews (commit_id, commit_ctx, diff,diff_files, review) VALUES (?, ?, ?, ?)', [commitId, JSON.stringify(commit_ctx), diff, JSON.stringify(diffFiles), review], (err) => {
+    db.run('INSERT INTO reviews (commit_id, commit_ctx, diff,diff_files, review) VALUES (?, ?, ?, ?,?)', [commitId, JSON.stringify(commit_ctx), diff, JSON.stringify(diffFiles), review], (err) => {
         if (err) {
             console.error('Error inserting data.', err);
         } else {
