@@ -3,8 +3,8 @@ const { checkWebhookSecret } = require('./content/checkWebhookSecret.js');
 const { postGitComment } = require('./content/postGitComment.js');
 const { getGitCommitDiff } = require('./content/getGitCommitDiff.js');
 const { requestGPT } = require('./content/requestGPT.js');
-const { saveToRedis, getRedis } = require('./content/saveToRedis.js');
-const { getReviews, insertReview } = require('./content/saveToSqlite.js');
+const { saveToRedis, getRedis, saveToRedisAll } = require('./content/saveToRedis.js');
+const { getReviews, insertReview, getReviewsAll } = require('./content/saveToSqlite.js');
 const { WEBHOOK_SECRET } = require('./env.js');
 
 const app = express();
@@ -49,8 +49,8 @@ app.post('/query', async (req, res) => {
     const commitSha = req.body.commitSha;
     try {
         // 首先尝试从Redis获取数据
-        const redisData = await getRedis(commitSha);
         console.log('getRedis....');
+        const redisData = await getRedis(commitSha);
         if (redisData) {
             // 如果Redis有数据，直接返回结果
             return res.status(200).json(redisData);
@@ -63,7 +63,6 @@ app.post('/query', async (req, res) => {
                     return res.status(500).send('Internal Server Error');
                 }
                 if (sqliteData.length > 0) {
-                    console.log(sqliteData[sqliteData.length - 1]);
                     console.log('after getReviews, saveToRedis....');
                     await saveToRedis(commitSha, sqliteData[sqliteData.length - 1]);
                     return res.status(200).json(sqliteData[sqliteData.length - 1]);
@@ -79,6 +78,41 @@ app.post('/query', async (req, res) => {
         return res.status(500).send('Internal Server Error');
     }
 });
+
+
+app.post('/queryAll', async (req, res) => {
+    const redisKey = "list";
+    try {
+        // 首先尝试从Redis获取数据
+        console.log('getRedis....');
+        const redisData = await getRedis(redisKey);
+        if (redisData) {
+            // 如果Redis有数据，直接返回结果
+            return res.status(200).json(redisData);
+        } else {
+            // 如果Redis没有数据，查询SQLite
+            console.log('getReviewsAll by sqlite....');
+            getReviewsAll("list", async (err, sqliteData) => {
+                if (err) {
+                    console.error('Error retrieving data from SQLite:', err);
+                    return res.status(500).send('Internal Server Error');
+                }
+                if (sqliteData.length > 0) {
+                    console.log('after getReviewsAll, saveToRedis....');
+                    await saveToRedisAll(redisKey, sqliteData);
+                    return res.status(200).json(sqliteData);
+                } else {
+                    return res.status(404).send('No review data found for this commit');
+                }
+            });
+        }
+    } catch (err) {
+        // 捕捉到异常，处理错误
+        console.error('Error in /query route:', err);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
 
 const PORT = 3090;
 app.listen(PORT, () => {

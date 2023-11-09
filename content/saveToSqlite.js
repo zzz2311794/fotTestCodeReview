@@ -12,6 +12,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // 创建一个新表
 db.serialize(() => {
+    //reviews
     db.run(`
     CREATE TABLE IF NOT EXISTS reviews (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,7 +43,7 @@ function insertReview(commitId, commit_ctx, diff, diffFiles, review) {
 }
 
 function getReviews(commitId, callback) {
-    db.all('SELECT * FROM reviews where commit_id = ?', [commitId], (err, rows) => {
+    db.all('SELECT * FROM reviews WHERE commit_id = ?', [commitId], (err, rows) => {
         if (err) {
             callback(err);
         } else {
@@ -57,5 +58,26 @@ function getReviews(commitId, callback) {
         }
     });
 }
+
+function getReviewsAll(commitId, callback) {
+    db.all('SELECT * FROM reviews ORDER BY created_at DESC', [], (err, rows) => {
+        if (err) {
+            callback(err);
+        } else {
+            const dataWithObj = rows.map(row => ({
+                commitSha: row.commit.id,
+                tree_id: row.commit.tree_id,
+                message: row.commit.message,
+                timestamp: row.commit.timestamp,
+                url: row.commit.url,
+                author: row.commit.author ? JSON.parse(row.commit.author) : {},
+                modified: row.commit.modified ? JSON.parse(row.commit.modified) : {},
+            }));
+            callback(null, dataWithObj);
+        }
+    });
+}
+
 exports.getReviews = getReviews;
 exports.insertReview = insertReview;
+exports.getReviewsAll = getReviewsAll;
