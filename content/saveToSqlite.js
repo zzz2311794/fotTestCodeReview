@@ -18,7 +18,7 @@ db.serialize(() => {
       commit_id TEXT,
       commit_ctx TEXT,
       diff TEXT,
-      diff_files TEXT,  
+      diff_files TEXT,
       review TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -46,7 +46,13 @@ function getReviews(commitId, callback) {
         if (err) {
             callback(err);
         } else {
-            callback(null, rows);
+            // 将每行的commit_ctx从字符串转换回对象
+            const dataWithObj = rows.map(row => ({
+                ...row,
+                commit_ctx: JSON.parse(row.commit_ctx),
+                diffFiles: JSON.parse(row.diffFiles)
+            }));
+            callback(null, dataWithObj);
         }
     });
 }
