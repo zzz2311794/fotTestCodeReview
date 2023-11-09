@@ -12,8 +12,8 @@ async function connectToRedis() {
 async function saveToRedis(commitSha, messages) {
     const redisValue = {
         commit: messages.commit,
-        commitDiff: messages.commitDiff,
-        diffFiles: messages.diffFiles,
+        diffString: messages.diffString,
+        files: messages.files,
         review: messages.review
     };
     await client.set(commitSha, JSON.stringify(redisValue), 'EX', 3600);

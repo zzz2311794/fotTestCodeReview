@@ -27,20 +27,20 @@ app.post('/webhook', async (req, res) => {
         const commitSha = commit.id;
         // 获取commit的diff
         console.log('getGitCommitDiff....');
-        const { commitDiff, diffFiles } = await getGitCommitDiff(repositoryFullName, commitSha);
+        const { commitDiff, files } = await getGitCommitDiff(repositoryFullName, commitSha);
         // 将diff发送给ChatGPT进行评审
-        const review = await requestGPT(commitDiff, "你作为代码审查师，请指出这次代码提交中代码存在的问题,并给出正确的代码");
+        const review = await requestGPT(diffString, "你作为代码审查师，请指出这次代码提交中代码存在的问题,并给出正确的代码");
         console.log('review:', review);
         // 将评审结果作为评论发送到GitHub的commit下面
         console.log('postGitComment....');
         await postGitComment(repositoryFullName, commitSha, review);
         // 同时将审核结论写入Redis
-        console.log("info:", { commit, commitDiff, diffFiles, review })
+        console.log("info:", { commit, diffString, files, review })
         console.log('saveToRedis....');
-        await saveToRedis(commitSha, { commit, commitDiff, diffFiles, review });
+        await saveToRedis(commitSha, { commit, diffString, files, review });
         //审核放入 sqlite
         console.log('insertReview....');
-        insertReview(commitSha, commit, commitDiff, diffFiles, review)
+        insertReview(commitSha, commit, diffString, files, review)
     }
     res.sendStatus(200);
 });
