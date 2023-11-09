@@ -3,7 +3,7 @@ const { checkWebhookSecret } = require('./content/checkWebhookSecret.js');
 const { postGitComment } = require('./content/postGitComment.js');
 const { getGitCommitDiff } = require('./content/getGitCommitDiff.js');
 const { requestGPT } = require('./content/requestGPT.js');
-const { saveToRedis, getRedis, saveToRedisAll } = require('./content/saveToRedis.js');
+const { saveToRedis, getRedis, delRedis } = require('./content/saveToRedis.js');
 const { getReviews, insertReview, getReviewsAll } = require('./content/saveToSqlite.js');
 const { WEBHOOK_SECRET } = require('./env.js');
 
@@ -38,6 +38,8 @@ app.post('/webhook', async (req, res) => {
         console.log("info:", { commit, diffString, files, review })
         console.log('saveToRedis....');
         await saveToRedis(commitSha, { commit, diffString, files, review });
+        console.log('delRedis....(list)');
+        await delRedis("list");
         //审核放入 sqlite
         console.log('insertReview....');
         insertReview(commitSha, commit, diffString, files, review)
@@ -70,7 +72,6 @@ app.post('/query', async (req, res) => {
                     return res.status(404).send('No review data found for this commit');
                 }
             });
-
         }
     } catch (err) {
         // 捕捉到异常，处理错误
@@ -99,7 +100,7 @@ app.post('/queryAll', async (req, res) => {
                 }
                 if (sqliteData.length > 0) {
                     console.log('after getReviewsAll, saveToRedis....');
-                    await saveToRedisAll(redisKey, sqliteData);
+                    await saveToRedis(redisKey, sqliteData);
                     return res.status(200).json(sqliteData);
                 } else {
                     return res.status(404).send('No review data found for this commit');

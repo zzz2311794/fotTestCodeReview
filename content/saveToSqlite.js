@@ -15,8 +15,7 @@ db.serialize(() => {
     //reviews
     db.run(`
     CREATE TABLE IF NOT EXISTS reviews (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      commit_id TEXT,
+      commit_id TEXT PRIMARY KEY ,
       commit_ctx TEXT,
       diff TEXT,
       diff_files TEXT,
