@@ -65,13 +65,7 @@ function getReviewsAll(commitId, callback) {
             callback(err);
         } else {
             const dataWithObj = rows.map(row => ({
-                commitSha: row.commit.id,
-                tree_id: row.commit.tree_id,
-                message: row.commit.message,
-                timestamp: row.commit.timestamp,
-                url: row.commit.url,
-                author: row.commit.author ? JSON.parse(row.commit.author) : {},
-                modified: row.commit.modified ? JSON.parse(row.commit.modified) : {},
+                ...(row.commit_ctx ? JSON.parse(row.commit_ctx) : {})
             }));
             callback(null, dataWithObj);
         }
