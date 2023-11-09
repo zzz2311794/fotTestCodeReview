@@ -17,7 +17,7 @@ async function saveToRedis(commitSha, messages) {
 async function getRedis(key) {
     // 如果使用最新版本的redis，就不需要isOpen检查
     const reply = await client.get(key);
-    console.log("Redis got,commitSha:", key)
+    console.log("get Redis,key:", key)
     return reply ? JSON.parse(reply) : null;
 }
 async function delRedis(key) {

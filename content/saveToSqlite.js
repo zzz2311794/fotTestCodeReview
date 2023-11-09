@@ -32,13 +32,15 @@ db.serialize(() => {
 });
 
 function insertReview(commitId, commit_ctx, diff, diffFiles, review) {
-    db.run('INSERT INTO reviews (commit_id, commit_ctx, diff,diff_files, review) VALUES (?, ?, ?, ?,?)', [commitId, JSON.stringify(commit_ctx), diff, JSON.stringify(diffFiles), review], (err) => {
-        if (err) {
-            console.error('Error inserting data.', err);
-        } else {
-            console.log('Review data inserted.');
-        }
-    });
+    // 使用REPLACE插入新的评论数据，这将自动删除具有相同commit_id的旧记录
+    db.run('REPLACE INTO reviews (commit_id, commit_ctx, diff, diff_files, review) VALUES (?, ?, ?, ?, ?)',
+        [commitId, JSON.stringify(commit_ctx), diff, JSON.stringify(diffFiles), review], (err) => {
+            if (err) {
+                console.error('Error inserting or replacing review data.', err);
+            } else {
+                console.log('Review data inserted or replaced successfully.');
+            }
+        });
 }
 
 function getReviews(commitId, callback) {
