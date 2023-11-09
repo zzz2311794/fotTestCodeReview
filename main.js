@@ -63,16 +63,10 @@ app.post('/query', async (req, res) => {
                     return res.status(500).send('Internal Server Error');
                 }
                 if (sqliteData.length > 0) {
-                    console.log(sqliteData[-1]);
-                    // const messages = {
-                    //     commit: sqliteData[-1].commit_ctx,
-                    //     diffString: sqliteData[[-1]].diff,
-                    //     files: sqliteData[[-1]].diff_files,
-                    //     review: sqliteData[[-1]].review
-                    // }
-                    // console.log('after getReviews, saveToRedis....');
-                    // await saveToRedis(commitSha, messages);
-                    return res.status(200).json(sqliteData[-1]);
+                    console.log(sqliteData[sqliteData.length - 1]);
+                    console.log('after getReviews, saveToRedis....');
+                    await saveToRedis(commitSha, sqliteData[sqliteData.length - 1]);
+                    return res.status(200).json(sqliteData[sqliteData.length - 1]);
                 } else {
                     return res.status(404).send('No review data found for this commit');
                 }
