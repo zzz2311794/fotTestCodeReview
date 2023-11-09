@@ -4,7 +4,6 @@ const { GPT_URL } = require('../env.js');
 async function requestGPT(code, tips) {
     const content = {
         messages: [
-            { "role": "system", "content": "As a senior code review analyst, you need to help me review the code." },
             { "role": "user", "content": `${tips}: ${code}` }
         ],
         model: "",

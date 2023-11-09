@@ -10,7 +10,7 @@ const { WEBHOOK_SECRET } = require('./env.js');
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 
 //webhook的主函数
@@ -27,7 +27,7 @@ app.post('/webhook', async (req, res) => {
         // 获取commit的diff
         const commitDiff = await getGitCommitDiff(repositoryFullName, commitSha);
         // 将diff发送给ChatGPT进行评审
-        const review = await requestGPT(commitDiff, "请审核被提交代码,如果存在问题请改写这些代码,并给出注释。以上回答使用中文:");
+        const review = await requestGPT(commitDiff, "你作为代码审查师，请指出代码中存在的问题给出正确的代码");
         // 将评审结果作为评论发送到GitHub的commit下面
         await postGitComment(repositoryFullName, commitSha, review);
         // 同时将审核结论写入Redis
@@ -37,8 +37,6 @@ app.post('/webhook', async (req, res) => {
     }
     res.sendStatus(200);
 });
-
-
 
 app.post('/query', async (req, res) => {
     const commitSha = req.body.commitSha;
