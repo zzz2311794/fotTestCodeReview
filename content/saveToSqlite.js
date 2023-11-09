@@ -18,6 +18,7 @@ db.serialize(() => {
       commit_id TEXT NOT NULL,
       commit_ctx TEXT NOT NULL,
       diff TEXT NOT NULL,
+      diff_files TEXT NOT NULL,
       review TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -30,12 +31,12 @@ db.serialize(() => {
     });
 });
 
-function insertReview(commitId, commit_ctx, diff, review) {
-    db.run('INSERT INTO reviews (commit_id, commit_ctx, diff, review) VALUES (?, ?, ?, ?)', [commitId, commit_ctx, diff, review], (err) => {
+function insertReview(commitId, commit_ctx, diff, diffFiles, review) {
+    db.run('INSERT INTO reviews (commit_id, commit_ctx, diff,diff_files, review) VALUES (?, ?, ?, ?)', [commitId, JSON.stringify(commit_ctx), diff, JSON.stringify(diffFiles), review], (err) => {
         if (err) {
-            console.error('Error inserting data', err);
+            console.error('Error inserting data.', err);
         } else {
-            console.log('Review data inserted');
+            console.log('Review data inserted.');
         }
     });
 }

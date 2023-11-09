@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const { checkWebhookSecret } = require('./content/checkWebhookSecret.js');
 const { postGitComment } = require('./content/postGitComment.js');
 const { getGitCommitDiff } = require('./content/getGitCommitDiff.js');
@@ -16,24 +15,31 @@ app.use(express.json());
 //webhook的主函数
 app.post('/webhook', async (req, res) => {
     //Webhook Secret 校验不通过
+    console.log('checkWebhookSecret....');
     if (!checkWebhookSecret(req, WEBHOOK_SECRET)) {
         return res.status(403).send('Invalid Webhook Secret');
     }
+
     const commits = req.body.commits;
     const repositoryFullName = req.body.repository.full_name;  // 获取仓库的完整名称
     // push包含多个commit，循环处理
     for (let commit of commits) {
         const commitSha = commit.id;
         // 获取commit的diff
-        const commitDiff = await getGitCommitDiff(repositoryFullName, commitSha);
+        console.log('getGitCommitDiff....');
+        const { commitDiff, diffFiles } = await getGitCommitDiff(repositoryFullName, commitSha);
         // 将diff发送给ChatGPT进行评审
-        const review = await requestGPT(commitDiff, "你作为代码审查师，请指出代码中存在的问题给出正确的代码");
+        console.log('reviewing....');
+        const review = await requestGPT(commitDiff, "你作为代码审查师，请指出这次代码提交中代码存在的问题,并给出正确的代码");
         // 将评审结果作为评论发送到GitHub的commit下面
+        console.log('postGitComment....');
         await postGitComment(repositoryFullName, commitSha, review);
         // 同时将审核结论写入Redis
-        await saveToRedis(commitSha, { commit, commitDiff, review });
+        console.log('saveToRedis....');
+        await saveToRedis(commitSha, { commit, commitDiff, diffFiles, review });
         //审核放入 sqlite
-        insertReview(commitSha, commit, commitDiff, review)
+        console.log('insertReview....');
+        insertReview(commitSha, commit, commitDiff, diffFiles, review)
     }
     res.sendStatus(200);
 });
@@ -43,6 +49,7 @@ app.post('/query', async (req, res) => {
     try {
         // 首先尝试从Redis获取数据
         const redisData = await getRedis(commitSha);
+        console.log('getRedis....');
         if (redisData) {
             // 如果Redis有数据，直接返回结果
             return res.status(200).json(redisData);
@@ -59,6 +66,7 @@ app.post('/query', async (req, res) => {
                     return res.status(404).send('No review data found for this commit');
                 }
             });
+            console.log('getReviews by sqlite....');
         }
     } catch (err) {
         // 捕捉到异常，处理错误
