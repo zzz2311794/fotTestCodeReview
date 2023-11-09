@@ -56,6 +56,7 @@ app.post('/query', async (req, res) => {
             return res.status(200).json(redisData);
         } else {
             // 如果Redis没有数据，查询SQLite
+            console.log('getReviews by sqlite....');
             getReviews(commitSha, (err, sqliteData) => {
                 if (err) {
                     console.error('Error retrieving data from SQLite:', err);
@@ -67,7 +68,14 @@ app.post('/query', async (req, res) => {
                     return res.status(404).send('No review data found for this commit');
                 }
             });
-            console.log('getReviews by sqlite....');
+            console.log('after getReviews, saveToRedis....');
+            const messages = {
+                commit: sqliteData.commit_ctx,
+                diffString: sqliteData.diff,
+                files: sqliteData.diff_files,
+                review: sqliteData.review
+            }
+            await saveToRedis(commitSha, messages);
         }
     } catch (err) {
         // 捕捉到异常，处理错误

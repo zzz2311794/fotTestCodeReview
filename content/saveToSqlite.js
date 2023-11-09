@@ -46,16 +46,15 @@ function getReviews(commitId, callback) {
         if (err) {
             callback(err);
         } else {
-            // 将每行的commit_ctx从字符串转换回对象
+            // 字符串转换回对象
             const dataWithObj = rows.map(row => ({
                 ...row,
-                commit_ctx: JSON.parse(row.commit_ctx),
-                diffFiles: JSON.parse(row.diffFiles)
+                commit_ctx: row.commit_ctx ? JSON.parse(row.commit_ctx) : {},
+                diffFiles: row.diffFiles ? JSON.parse(row.diffFiles) : {}
             }));
             callback(null, dataWithObj);
         }
     });
 }
-
 exports.getReviews = getReviews;
 exports.insertReview = insertReview;
