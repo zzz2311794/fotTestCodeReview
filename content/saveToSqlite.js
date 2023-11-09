@@ -46,11 +46,12 @@ function getReviews(commitId, callback) {
         if (err) {
             callback(err);
         } else {
-            // 字符串转换回对象
+            // 字符串转换回对象，并转换为标准格式
             const dataWithObj = rows.map(row => ({
-                ...row,
-                commit_ctx: row.commit_ctx ? JSON.parse(row.commit_ctx) : {},
-                diffFiles: row.diffFiles ? JSON.parse(row.diffFiles) : {}
+                commit: row.commit_ctx ? JSON.parse(row.commit_ctx) : {},
+                diffString: row.diff,
+                files: row.diff_files ? JSON.parse(row.diff_files) : {},
+                review: row.review
             }));
             callback(null, dataWithObj);
         }
