@@ -10,7 +10,7 @@ async function connectToRedis() {
 }
 
 async function saveToRedis(commitSha, messages) {
-    await client.set(commitSha, JSON.stringify(messages), 'EX', 3600);
+    await client.set(commitSha, JSON.stringify(messages), 'EX', 600);
     console.log("Redis saved,key:", commitSha)
 }
 
