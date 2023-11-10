@@ -17,5 +17,5 @@ const testQueryRouteAll = async () => {
     console.log('Response Data:', response.data);
 };
 
-//testQueryRoute();
-testQueryRouteAll();
+testQueryRoute();
+//testQueryRouteAll();

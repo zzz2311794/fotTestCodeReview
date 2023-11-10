@@ -8,7 +8,8 @@ const { getReviews, insertReview, getReviewsAll } = require('./content/saveToSql
 const { WEBHOOK_SECRET } = require('./env.js');
 
 const app = express();
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // 允许所有域名访问
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -23,7 +24,6 @@ app.post('/webhook', async (req, res) => {
     if (!checkWebhookSecret(req, WEBHOOK_SECRET)) {
         return res.status(403).send('Invalid Webhook Secret');
     }
-
     const commits = req.body.commits;
     const repositoryFullName = req.body.repository.full_name;  // 获取仓库的完整名称
     // push包含多个commit，循环处理
@@ -34,7 +34,7 @@ app.post('/webhook', async (req, res) => {
         const { diffString, files } = await getGitCommitDiff(repositoryFullName, commitSha);
         // 将diff发送给ChatGPT进行评审
         console.log('reviewing...');
-        const review = await requestGPT(diffString, "你作为代码审查师，请指出这次代码提交中代码存在的问题,并给出正确的代码");
+        const review = await requestGPT(diffString, "你作为代码审查师。请指出这次commit中，代码可能存在的问题。");
         // 将评审结果作为评论发送到GitHub的commit下面
         console.log('postGitComment....');
         await postGitComment(repositoryFullName, commitSha, review);
