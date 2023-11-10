@@ -34,7 +34,7 @@ app.post('/webhook', async (req, res) => {
         const { diffString, files } = await getGitCommitDiff(repositoryFullName, commitSha);
         // 将diff发送给ChatGPT进行评审
         console.log('reviewing...');
-        const review = await requestGPT(diffString, "你作为代码审查师。请指出这次commit中，代码可能存在的问题。");
+        const review = await requestGPT(diffString, "你作为代码审查师。请指出这次commit中，代码可能存在的问题。最后给出修正后的代码");
         // 将评审结果作为评论发送到GitHub的commit下面
         console.log('postGitComment....');
         await postGitComment(repositoryFullName, commitSha, review);
