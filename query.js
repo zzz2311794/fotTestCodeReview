@@ -8,8 +8,6 @@ const testQueryRoute = async () => {
     console.log('Response Data:', response.data);
 };
 
-
-
 const testQueryRouteAll = async () => {
     const queryUrl = 'http://18.179.22.174:3090/queryAll'; // 确保端口号与您的应用相匹配
     const response = await axios.post(queryUrl);
@@ -17,5 +15,5 @@ const testQueryRouteAll = async () => {
     console.log('Response Data:', response.data);
 };
 
-testQueryRoute();
-//testQueryRouteAll();
+//testQueryRoute();
+testQueryRouteAll();
