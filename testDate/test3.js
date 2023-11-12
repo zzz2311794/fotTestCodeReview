@@ -15,7 +15,7 @@ var longestPalindrome = function (s) {
                 if (j - i == 1 || dp[i + 1][j - 1] == 1) {
                     dp[i][j] = 1;
                     if (j - i + 1 > max) {
-                        max = j - i;
+
                         res = s.substring(i, j + 1)
                     }
                 }
